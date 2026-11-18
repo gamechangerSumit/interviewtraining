@@ -1,9 +1,9 @@
 import { useState } from "react";
 import {
   Activity, ArrowUpRight, AudioLines, BookOpen, BrainCircuit, CalendarDays,
-  Camera, CheckCircle2, ChevronRight, CircleHelp, Clock3, Code2, Compass,
-  Flame, Home, Layers3, Mic, MessageSquareText, Plus, Settings2, ShieldCheck,
-  Sparkles, Target, Users, Video, Zap,
+  CheckCircle2, ChevronRight, CircleHelp, Clock3, Code2, Compass,
+  Flame, Home, Layers3, MessageSquareText, Plus, Settings2, ShieldCheck,
+  Sparkles, Target, Users, Zap,
 } from "lucide-react";
 
 type Mode = "interview" | "group" | "communication";
