@@ -1,0 +1,20 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: interviewtraining-api
+  datasource:
+    url: ${DATABASE_URL:jdbc:postgresql://localhost:5432/interviewtraining}
+    username: ${DATABASE_USERNAME:interviewtraining}
+    password: ${DATABASE_PASSWORD:change-me}
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    open-in-view: false
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
