@@ -64,7 +64,7 @@ public class GeminiCoachService {
                 safe(request.answer()), safe(request.previousContext()));
 
         Map<String, Object> body = Map.of(
-                "system_instruction", Map.of("parts", List.of(Map.of("text", instruction))),
+                "systemInstruction", Map.of("parts", List.of(Map.of("text", instruction))),
                 "contents", List.of(Map.of("role", "user", "parts", List.of(Map.of("text", prompt)))),
                 "generationConfig", Map.of("temperature", 0.7, "maxOutputTokens", 900)
         );
