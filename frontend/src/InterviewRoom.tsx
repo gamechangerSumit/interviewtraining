@@ -7,6 +7,7 @@ type Props = {
   role: string;
   experience: string;
   duration: string;
+  questionStyle: string;
   onExit: () => void;
 };
 
@@ -50,6 +51,7 @@ export default function InterviewRoom({ role, experience, duration, questionStyl
       const result = await coachApi.evaluate({ role, experience, question, answer });
       setFeedback(result.content);
       setHistory((items) => [...items, `Q: ${question}\nA: ${answer}`]);
+      if (sessionId) await sessionApi.addTurn(sessionId, { question, answer, feedback: result.content });
     } catch (e) {
       setError(e instanceof Error ? e.message : "Could not evaluate your answer.");
     } finally {
@@ -97,7 +99,7 @@ export default function InterviewRoom({ role, experience, duration, questionStyl
         {loading && <div className="room-loading"><LoaderCircle className="spin" size={18} /> Gemini is preparing your coaching response…</div>}
         {error && <div className="room-error" role="alert">{error}</div>}
         {feedback && <section className="feedback-card"><div className="feedback-title"><CheckCircle2 size={18} /><strong>Your coaching feedback</strong></div><pre>{feedback}</pre><button className="room-primary" onClick={nextQuestion} disabled={loading}><ArrowRight size={16} /> Ask a follow-up question</button><button className="room-secondary" onClick={() => generateQuestion(history.join("\n\n"))} disabled={loading}>New interview question</button></section>}
-        <p className="room-privacy">Text-only practice · No camera or microphone is active · Your responses are not saved to a session history yet.</p>
+        <p className="room-privacy">Text-only interview · Your questions, answers and feedback are saved to your practice session.</p>
       </section>
     </main>
   );
