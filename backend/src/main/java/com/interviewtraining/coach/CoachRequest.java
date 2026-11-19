@@ -6,7 +6,7 @@ import jakarta.validation.constraints.Size;
 public record CoachRequest(
         @NotBlank @Size(max = 120) String role,
         @NotBlank @Size(max = 40) String experience,
-        @NotBlank @Size(max = 40) String mode,
+        @Size(max = 40) String mode,
         @Size(max = 2000) String question,
         @Size(max = 12000) String answer,
         @Size(max = 12000) String previousContext
