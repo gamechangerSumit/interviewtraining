@@ -8,10 +8,11 @@ type Props = {
   experience: string;
   duration: string;
   questionStyle: string;
+  customQuestions: string[];
   onExit: () => void;
 };
 
-export default function InterviewRoom({ role, experience, duration, questionStyle, onExit }: Props) {
+export default function InterviewRoom({ role, experience, duration, questionStyle, customQuestions, onExit }: Props) {
   const [question, setQuestion] = useState("");
   const [answer, setAnswer] = useState("");
   const [feedback, setFeedback] = useState("");
@@ -33,8 +34,13 @@ export default function InterviewRoom({ role, experience, duration, questionStyl
     setFeedback("");
     setAnswer("");
     try {
-      const result = await coachApi.question({ role, experience, question: "", previousContext: `Question style: ${questionStyle}. ${previousContext}` });
-      setQuestion(result.content);
+      if (questionStyle === "My custom questions" && customQuestions.length > 0) {
+        const nextCustom = customQuestions[Math.floor(Math.random() * customQuestions.length)];
+        setQuestion(nextCustom);
+      } else {
+        const result = await coachApi.question({ role, experience, question: "", previousContext: `Question style: ${questionStyle}. ${previousContext}` });
+        setQuestion(result.content);
+      }
       setStep((value) => value + 1);
     } catch (e) {
       setError(e instanceof Error ? e.message : "Could not generate a question.");
