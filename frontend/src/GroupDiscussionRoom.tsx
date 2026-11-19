@@ -72,7 +72,7 @@ export default function GroupDiscussionRoom({ onExit }: Props) {
           <div className="answer-actions"><span>{point.trim().split(/\s+/).filter(Boolean).length} words</span><button className="room-primary" disabled={loading || !point.trim() || !topic.trim()} onClick={submitPoint}><Send size={16} /> Take the floor</button></div>
         </section>
         {error && <div className="room-error" role="alert">{error}</div>}
-        <p className="room-privacy">Simulated participant · Text-only discussion · Turns are not saved to a session history yet.</p>
+        <p className="room-privacy">Simulated participant · Discussion turns and AI responses are saved to your practice session.</p>
       </section>
     </main>
   );
