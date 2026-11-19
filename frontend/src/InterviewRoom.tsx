@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { ArrowLeft, ArrowRight, Bot, CheckCircle2, LoaderCircle, Send, Sparkles } from "lucide-react";
 import { coachApi } from "./api";
+import "./room.css";
 
 type Props = {
   role: string;
