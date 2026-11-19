@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { ArrowLeft, Camera, CameraOff, CheckCircle2, LoaderCircle, Mic, MicOff, Send, Sparkles, Video } from "lucide-react";
+import { ArrowLeft, Camera, CameraOff, CheckCircle2, LoaderCircle, Mic, Send, Sparkles, Video } from "lucide-react";
 import { coachApi, sessionApi } from "./api";
 import "./room.css";
 
