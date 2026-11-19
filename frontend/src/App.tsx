@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import InterviewRoom from "./InterviewRoom";
 import GroupDiscussionRoom from "./GroupDiscussionRoom";
 import CommunicationRoom from "./CommunicationRoom";
-import { questionApi } from "./api";
+import { questionApi, sessionApi, type PracticeSession } from "./api";
 import {
   Activity, ArrowUpRight, AudioLines, BookOpen, BrainCircuit, CalendarDays,
   CheckCircle2, ChevronRight, CircleHelp, Clock3, Code2, Compass,
@@ -12,22 +12,10 @@ import {
 
 type Mode = "interview" | "group" | "communication";
 
-const stats = [
-  { label: "Practice sessions", value: "12", change: "+3 this week", icon: Activity },
-  { label: "Practice time", value: "4.8h", change: "+1.2h this week", icon: Clock3 },
-  { label: "Skills improving", value: "6", change: "Keep the streak going", icon: Target },
-];
-
 const modules = [
   { id: "interview" as Mode, title: "1-on-1 Interview", description: "Practice with an AI interviewer that asks follow-up questions.", icon: MessageSquareText, tag: "MOST POPULAR", tone: "violet" },
   { id: "group" as Mode, title: "Group Discussion", description: "Build confidence, structure your points and respond to different views.", icon: Users, tag: "INTERACTIVE", tone: "blue" },
   { id: "communication" as Mode, title: "Communication Gym", description: "Sharpen introductions, explanations and everyday speaking skills.", icon: AudioLines, tag: "DAILY PRACTICE", tone: "orange" },
-];
-
-const activity = [
-  { title: "Digital Workplace Service Desk", type: "Technical + HR interview", date: "Yesterday", score: "78", color: "green" },
-  { title: "Tell me about yourself", type: "Communication drill", date: "Mon, Nov 16", score: "72", color: "blue" },
-  { title: "Cloud computing in simple words", type: "Technical explanation", date: "Nov 14", score: "68", color: "orange" },
 ];
 
 function App() {
@@ -46,6 +34,13 @@ function App() {
     "How do you troubleshoot a production issue?",
   ]);
   const [notice, setNotice] = useState("Your practice workspace is ready. Choose a session to get started.");
+  const [sessions, setSessions] = useState<PracticeSession[]>([]);
+
+  const stats = [
+    { label: "Practice sessions", value: String(sessions.length), change: "Saved sessions", icon: Activity },
+    { label: "Answers submitted", value: String(sessions.reduce((sum, item) => sum + item.turnCount, 0)), change: "Across all practice", icon: Clock3 },
+    { label: "Completed sessions", value: String(sessions.filter((item) => item.status === "COMPLETED").length), change: "Keep practising", icon: Target },
+  ];
 
   useEffect(() => {
     questionApi.list()
@@ -132,7 +127,7 @@ function App() {
       <main className="main-content">
         <header className="topbar">
           <div className="breadcrumb">Workspace <ChevronRight size={14} /> <strong>Overview</strong></div>
-          <div className="top-actions"><span className="system-status"><i /> Practice engine setup</span><button className="icon-button" aria-label="Help"><CircleHelp size={18} /></button><div className="avatar small">A</div></div>
+          <div className="top-actions"><span className="system-status"><i /> API connected when backend is running</span><button className="icon-button" aria-label="Help"><CircleHelp size={18} /></button><div className="avatar small">A</div></div>
         </header>
 
         <div className="content-wrap">
