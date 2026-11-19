@@ -26,6 +26,7 @@ function App() {
   const [role, setRole] = useState("DevOps Engineer");
   const [level, setLevel] = useState("Fresher");
   const [duration, setDuration] = useState("20 minutes");
+  const [questionStyle, setQuestionStyle] = useState("Mixed questions");
   const [customQuestion, setCustomQuestion] = useState("");
   const [showQuestionForm, setShowQuestionForm] = useState(false);
   const [questions, setQuestions] = useState<string[]>([
@@ -90,7 +91,7 @@ function App() {
   }
 
   if (showRoom) {
-    return <InterviewRoom role={role} experience={level} duration={duration} onExit={() => setShowRoom(false)} />;
+    return <InterviewRoom role={role} experience={level} duration={duration} questionStyle={questionStyle} onExit={() => setShowRoom(false)} />;
   }
 
   return (
@@ -137,7 +138,7 @@ function App() {
               <h1>Let's get you <span>interview-ready.</span></h1>
               <p>Build confidence one answer at a time. Your next opportunity starts with practice.</p>
             </div>
-            <div className="date-chip"><CalendarDays size={15} /> Wednesday, November 18</div>
+            <div className="date-chip"><CalendarDays size={15} /> {new Date().toLocaleDateString(undefined, { weekday: "long", month: "long", day: "numeric" })}</div>
           </section>
 
           <section className="hero-card">
@@ -173,7 +174,7 @@ function App() {
                 <label>Target role<input value={role} onChange={(event) => setRole(event.target.value)} placeholder="e.g. DevOps Engineer" /></label>
                 <label>Experience level<select value={level} onChange={(event) => setLevel(event.target.value)}><option>Fresher</option><option>0–2 years</option><option>2–5 years</option><option>5+ years</option></select></label>
                 <label>Session duration<select value={duration} onChange={(event) => setDuration(event.target.value)}><option>10 minutes</option><option>20 minutes</option><option>30 minutes</option><option>45 minutes</option></select></label>
-                <label>Question style<select defaultValue="Mixed questions"><option>Mixed questions</option><option>Random questions</option><option>My custom questions</option><option>HR focused</option><option>Technical focused</option></select></label>
+                <label>Question style<select value={questionStyle} onChange={(event) => setQuestionStyle(event.target.value)}><option>Mixed questions</option><option>Random questions</option><option>My custom questions</option><option>HR focused</option><option>Technical focused</option></select></label>
               </div>
               <div className="capture-note"><ShieldCheck size={17} /><span><strong>Your privacy matters.</strong> Camera and microphone will only be requested when you choose to enable them in a practice room.</span></div>
               <button className="primary-button full" onClick={startPractice}>Prepare my session <ArrowUpRight size={17} /></button>
