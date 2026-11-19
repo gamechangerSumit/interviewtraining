@@ -97,7 +97,7 @@ function App() {
   }
 
   if (showRoom) {
-    return <InterviewRoom role={role} experience={level} duration={duration} questionStyle={questionStyle} onExit={() => setShowRoom(false)} />;
+    return <InterviewRoom role={role} experience={level} duration={duration} questionStyle={questionStyle} customQuestions={questions} onExit={() => setShowRoom(false)} />;
   }
 
   return (
