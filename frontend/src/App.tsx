@@ -49,6 +49,12 @@ function App() {
       .catch(() => setNotice("Backend question bank is not reachable yet. You can still open the AI practice room."));
   }, []);
 
+  useEffect(() => {
+    sessionApi.list()
+      .then(setSessions)
+      .catch(() => setNotice("Session history is not available yet. Start the backend to enable saved progress."));
+  }, [showRoom, showGroupRoom, showCommunicationRoom]);
+
   const startPractice = () => {
     if (activeMode === "group") {
       setShowGroupRoom(true);
@@ -191,9 +197,9 @@ function App() {
           </section>
 
           <section className="section-block recent-block">
-            <div className="section-heading"><div><div className="eyebrow">YOUR JOURNEY</div><h2>Recent practice</h2><p>Look back, learn and keep moving forward.</p></div><button className="view-all" onClick={() => setNotice("Your complete session history will be available when the backend is connected.")}>View history <ArrowUpRight size={14} /></button></div>
-            <div className="activity-table"><div className="activity-head"><span>SESSION</span><span>TYPE</span><span>DATE</span><span>DEMO SCORE</span></div>{activity.map((item) => <div className="activity-row" key={item.title}><div className="activity-title"><div className={`activity-icon ${item.color}`}><Code2 size={16} /></div><strong>{item.title}</strong></div><span>{item.type}</span><span>{item.date}</span><span className={`score ${item.color}`}>{item.score}<small>/100</small></span></div>)}</div>
-            <p className="demo-disclaimer">Illustrative sample data — real scores will be generated from completed sessions.</p>
+            <div className="section-heading"><div><div className="eyebrow">YOUR JOURNEY</div><h2>Recent practice</h2><p>Look back, learn and keep moving forward.</p></div><button className="view-all" onClick={() => setNotice(`Loaded ${sessions.length} saved sessions from PostgreSQL.`)}>View history <ArrowUpRight size={14} /></button></div>
+            <div className="activity-table"><div className="activity-head"><span>SESSION</span><span>MODE</span><span>DATE</span><span>ANSWERS</span></div>{sessions.length ? sessions.map((item) => <div className="activity-row" key={item.id}><div className="activity-title"><div className="activity-icon blue"><Code2 size={16} /></div><strong>{item.role}</strong></div><span>{item.mode}</span><span>{new Date(item.startedAt).toLocaleDateString()}</span><span className="score blue">{item.turnCount}<small> answers</small></span></div>) : <div className="activity-row"><span>No saved sessions yet. Complete a practice session to see it here.</span></div>}</div>
+            <p className="demo-disclaimer">Practice history is loaded from PostgreSQL. Coaching feedback is available inside each session.</p>
           </section>
 
           <footer className="footer"><span>© 2026 InterviewMate AI</span><span>Built to help you become a better communicator.</span><span><ShieldCheck size={13} /> Practice privately</span></footer>
