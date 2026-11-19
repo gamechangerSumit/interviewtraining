@@ -35,3 +35,12 @@
 .room-privacy{margin:24px 0 0;text-align:center;color:#777e91;font-size:9px;line-height:1.6}
 .spin{animation:room-spin 1s linear infinite}@keyframes room-spin{to{transform:rotate(360deg)}}
 @media(max-width:560px){.room-content{padding:30px 15px}.room-header{padding:0 13px}.room-header>div{font-size:8px}.interviewer-card,.answer-card,.feedback-card{padding:16px}.answer-actions{align-items:flex-start;flex-direction:column}.room-secondary{margin:9px 0 0}}
+
+.discussion-topic-input{display:block;width:100%;margin-top:12px;padding:12px;background:#0b0e17;border:1px solid #303448;border-radius:8px;color:#f1eff8;font:12px "DM Sans",sans-serif;outline:none}
+.discussion-topic-input:focus{border-color:#8c70e9}
+.discussion-turn{padding:12px 14px;border-radius:9px;margin-top:12px;border:1px solid #303448;background:#0b0e17}
+.discussion-turn.candidate{border-color:#4a3c70;background:#1b1730}
+.discussion-turn.ai{border-color:#285344;background:#111f1c}
+.discussion-turn strong{font-size:10px;color:#b9a5ff}
+.discussion-turn.ai strong{color:#83d8ae}
+.discussion-turn p{font-size:11px;line-height:1.7;color:#d2d3df;margin:7px 0 0;white-space:pre-wrap}
