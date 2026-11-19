@@ -10,7 +10,7 @@ type Props = {
   onExit: () => void;
 };
 
-export default function InterviewRoom({ role, experience, duration, onExit }: Props) {
+export default function InterviewRoom({ role, experience, duration, questionStyle, onExit }: Props) {
   const [question, setQuestion] = useState("");
   const [answer, setAnswer] = useState("");
   const [feedback, setFeedback] = useState("");
@@ -32,7 +32,7 @@ export default function InterviewRoom({ role, experience, duration, onExit }: Pr
     setFeedback("");
     setAnswer("");
     try {
-      const result = await coachApi.question({ role, experience, question: "", previousContext });
+      const result = await coachApi.question({ role, experience, question: "", previousContext: `Question style: ${questionStyle}. ${previousContext}` });
       setQuestion(result.content);
       setStep((value) => value + 1);
     } catch (e) {
