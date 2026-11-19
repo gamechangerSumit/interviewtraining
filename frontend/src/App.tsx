@@ -1,4 +1,6 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import InterviewRoom from "./InterviewRoom";
+import { questionApi } from "./api";
 import {
   Activity, ArrowUpRight, AudioLines, BookOpen, BrainCircuit, CalendarDays,
   CheckCircle2, ChevronRight, CircleHelp, Clock3, Code2, Compass,
@@ -28,6 +30,7 @@ const activity = [
 
 function App() {
   const [activeMode, setActiveMode] = useState<Mode>("interview");
+  const [showRoom, setShowRoom] = useState(false);
   const [role, setRole] = useState("DevOps Engineer");
   const [level, setLevel] = useState("Fresher");
   const [duration, setDuration] = useState("20 minutes");
@@ -40,18 +43,44 @@ function App() {
   ]);
   const [notice, setNotice] = useState("Your practice workspace is ready. Choose a session to get started.");
 
+  useEffect(() => {
+    questionApi.list()
+      .then((items) => { if (items.length) setQuestions(items.map((item) => item.prompt)); })
+      .catch(() => setNotice("Backend question bank is not reachable yet. You can still open the AI practice room."));
+  }, []);
+
   const startPractice = () => {
-    setNotice(`Setup ready: ${activeMode === "interview" ? "1-on-1 interview" : activeMode === "group" ? "Group discussion" : "Communication gym"} · ${role} · ${level} · ${duration}. Session engine is the next implementation milestone.`);
+    if (activeMode !== "interview") {
+      setNotice("The working AI mock interview is ready. Group discussion and communication drills are still being built.");
+      return;
+    }
+    setShowRoom(true);
   };
 
-  const addQuestion = () => {
+  const addQuestion = async () => {
     const trimmed = customQuestion.trim();
     if (!trimmed) return;
-    setQuestions((current) => [...current, trimmed]);
-    setCustomQuestion("");
-    setShowQuestionForm(false);
-    setNotice("Your custom question was added to this practice list.");
+    try {
+      await questionApi.create({
+        prompt: trimmed,
+        category: "CUSTOM",
+        targetRole: role,
+        difficulty: "Beginner",
+        expectedThemes: "",
+        referenceAnswer: "",
+      });
+      setQuestions((current) => [...current, trimmed]);
+      setCustomQuestion("");
+      setShowQuestionForm(false);
+      setNotice("Your custom question was saved to PostgreSQL.");
+    } catch (error) {
+      setNotice(error instanceof Error ? error.message : "Could not save the question. Check that the backend is running.");
+    }
   };
+
+  if (showRoom) {
+    return <InterviewRoom role={role} experience={level} duration={duration} onExit={() => setShowRoom(false)} />;
+  }
 
   return (
     <div className="app-shell">
