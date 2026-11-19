@@ -1,4 +1,8 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import InterviewRoom from "./InterviewRoom";
+import GroupDiscussionRoom from "./GroupDiscussionRoom";
+import CommunicationRoom from "./CommunicationRoom";
+import { questionApi, sessionApi, type PracticeSession } from "./api";
 import {
   Activity, ArrowUpRight, AudioLines, BookOpen, BrainCircuit, CalendarDays,
   CheckCircle2, ChevronRight, CircleHelp, Clock3, Code2, Compass,
@@ -8,29 +12,21 @@ import {
 
 type Mode = "interview" | "group" | "communication";
 
-const stats = [
-  { label: "Practice sessions", value: "12", change: "+3 this week", icon: Activity },
-  { label: "Practice time", value: "4.8h", change: "+1.2h this week", icon: Clock3 },
-  { label: "Skills improving", value: "6", change: "Keep the streak going", icon: Target },
-];
-
 const modules = [
   { id: "interview" as Mode, title: "1-on-1 Interview", description: "Practice with an AI interviewer that asks follow-up questions.", icon: MessageSquareText, tag: "MOST POPULAR", tone: "violet" },
   { id: "group" as Mode, title: "Group Discussion", description: "Build confidence, structure your points and respond to different views.", icon: Users, tag: "INTERACTIVE", tone: "blue" },
   { id: "communication" as Mode, title: "Communication Gym", description: "Sharpen introductions, explanations and everyday speaking skills.", icon: AudioLines, tag: "DAILY PRACTICE", tone: "orange" },
 ];
 
-const activity = [
-  { title: "Digital Workplace Service Desk", type: "Technical + HR interview", date: "Yesterday", score: "78", color: "green" },
-  { title: "Tell me about yourself", type: "Communication drill", date: "Mon, Nov 16", score: "72", color: "blue" },
-  { title: "Cloud computing in simple words", type: "Technical explanation", date: "Nov 14", score: "68", color: "orange" },
-];
-
 function App() {
   const [activeMode, setActiveMode] = useState<Mode>("interview");
+  const [showRoom, setShowRoom] = useState(false);
+  const [showGroupRoom, setShowGroupRoom] = useState(false);
+  const [showCommunicationRoom, setShowCommunicationRoom] = useState(false);
   const [role, setRole] = useState("DevOps Engineer");
   const [level, setLevel] = useState("Fresher");
   const [duration, setDuration] = useState("20 minutes");
+  const [questionStyle, setQuestionStyle] = useState("Mixed questions");
   const [customQuestion, setCustomQuestion] = useState("");
   const [showQuestionForm, setShowQuestionForm] = useState(false);
   const [questions, setQuestions] = useState<string[]>([
@@ -39,19 +35,70 @@ function App() {
     "How do you troubleshoot a production issue?",
   ]);
   const [notice, setNotice] = useState("Your practice workspace is ready. Choose a session to get started.");
+  const [sessions, setSessions] = useState<PracticeSession[]>([]);
+
+  const stats = [
+    { label: "Practice sessions", value: String(sessions.length), change: "Saved sessions", icon: Activity },
+    { label: "Answers submitted", value: String(sessions.reduce((sum, item) => sum + item.turnCount, 0)), change: "Across all practice", icon: Clock3 },
+    { label: "Completed sessions", value: String(sessions.filter((item) => item.status === "COMPLETED").length), change: "Keep practising", icon: Target },
+  ];
+
+  useEffect(() => {
+    questionApi.list()
+      .then((items) => { if (items.length) setQuestions(items.map((item) => item.prompt)); })
+      .catch(() => setNotice("Backend question bank is not reachable yet. You can still open the AI practice room."));
+  }, []);
+
+  useEffect(() => {
+    sessionApi.list()
+      .then(setSessions)
+      .catch(() => setNotice("Session history is not available yet. Start the backend to enable saved progress."));
+  }, [showRoom, showGroupRoom, showCommunicationRoom]);
 
   const startPractice = () => {
-    setNotice(`Setup ready: ${activeMode === "interview" ? "1-on-1 interview" : activeMode === "group" ? "Group discussion" : "Communication gym"} · ${role} · ${level} · ${duration}. Session engine is the next implementation milestone.`);
+    if (activeMode === "group") {
+      setShowGroupRoom(true);
+      return;
+    }
+    if (activeMode === "communication") {
+      setShowCommunicationRoom(true);
+      return;
+    }
+    setShowRoom(true);
   };
 
-  const addQuestion = () => {
+  const addQuestion = async () => {
     const trimmed = customQuestion.trim();
     if (!trimmed) return;
-    setQuestions((current) => [...current, trimmed]);
-    setCustomQuestion("");
-    setShowQuestionForm(false);
-    setNotice("Your custom question was added to this practice list.");
+    try {
+      await questionApi.create({
+        prompt: trimmed,
+        category: "CUSTOM",
+        targetRole: role,
+        difficulty: "Beginner",
+        expectedThemes: "",
+        referenceAnswer: "",
+      });
+      setQuestions((current) => [...current, trimmed]);
+      setCustomQuestion("");
+      setShowQuestionForm(false);
+      setNotice("Your custom question was saved to PostgreSQL.");
+    } catch (error) {
+      setNotice(error instanceof Error ? error.message : "Could not save the question. Check that the backend is running.");
+    }
   };
+
+  if (showCommunicationRoom) {
+    return <CommunicationRoom onExit={() => setShowCommunicationRoom(false)} />;
+  }
+
+  if (showGroupRoom) {
+    return <GroupDiscussionRoom onExit={() => setShowGroupRoom(false)} />;
+  }
+
+  if (showRoom) {
+    return <InterviewRoom role={role} experience={level} duration={duration} questionStyle={questionStyle} customQuestions={questions} onExit={() => setShowRoom(false)} />;
+  }
 
   return (
     <div className="app-shell">
@@ -87,7 +134,7 @@ function App() {
       <main className="main-content">
         <header className="topbar">
           <div className="breadcrumb">Workspace <ChevronRight size={14} /> <strong>Overview</strong></div>
-          <div className="top-actions"><span className="system-status"><i /> Practice engine setup</span><button className="icon-button" aria-label="Help"><CircleHelp size={18} /></button><div className="avatar small">A</div></div>
+          <div className="top-actions"><span className="system-status"><i /> API connected when backend is running</span><button className="icon-button" aria-label="Help"><CircleHelp size={18} /></button><div className="avatar small">A</div></div>
         </header>
 
         <div className="content-wrap">
@@ -97,7 +144,7 @@ function App() {
               <h1>Let's get you <span>interview-ready.</span></h1>
               <p>Build confidence one answer at a time. Your next opportunity starts with practice.</p>
             </div>
-            <div className="date-chip"><CalendarDays size={15} /> Wednesday, November 18</div>
+            <div className="date-chip"><CalendarDays size={15} /> {new Date().toLocaleDateString(undefined, { weekday: "long", month: "long", day: "numeric" })}</div>
           </section>
 
           <section className="hero-card">
@@ -133,7 +180,7 @@ function App() {
                 <label>Target role<input value={role} onChange={(event) => setRole(event.target.value)} placeholder="e.g. DevOps Engineer" /></label>
                 <label>Experience level<select value={level} onChange={(event) => setLevel(event.target.value)}><option>Fresher</option><option>0–2 years</option><option>2–5 years</option><option>5+ years</option></select></label>
                 <label>Session duration<select value={duration} onChange={(event) => setDuration(event.target.value)}><option>10 minutes</option><option>20 minutes</option><option>30 minutes</option><option>45 minutes</option></select></label>
-                <label>Question style<select defaultValue="Mixed questions"><option>Mixed questions</option><option>Random questions</option><option>My custom questions</option><option>HR focused</option><option>Technical focused</option></select></label>
+                <label>Question style<select value={questionStyle} onChange={(event) => setQuestionStyle(event.target.value)}><option>Mixed questions</option><option>Random questions</option><option>My custom questions</option><option>HR focused</option><option>Technical focused</option></select></label>
               </div>
               <div className="capture-note"><ShieldCheck size={17} /><span><strong>Your privacy matters.</strong> Camera and microphone will only be requested when you choose to enable them in a practice room.</span></div>
               <button className="primary-button full" onClick={startPractice}>Prepare my session <ArrowUpRight size={17} /></button>
@@ -150,9 +197,9 @@ function App() {
           </section>
 
           <section className="section-block recent-block">
-            <div className="section-heading"><div><div className="eyebrow">YOUR JOURNEY</div><h2>Recent practice</h2><p>Look back, learn and keep moving forward.</p></div><button className="view-all" onClick={() => setNotice("Your complete session history will be available when the backend is connected.")}>View history <ArrowUpRight size={14} /></button></div>
-            <div className="activity-table"><div className="activity-head"><span>SESSION</span><span>TYPE</span><span>DATE</span><span>DEMO SCORE</span></div>{activity.map((item) => <div className="activity-row" key={item.title}><div className="activity-title"><div className={`activity-icon ${item.color}`}><Code2 size={16} /></div><strong>{item.title}</strong></div><span>{item.type}</span><span>{item.date}</span><span className={`score ${item.color}`}>{item.score}<small>/100</small></span></div>)}</div>
-            <p className="demo-disclaimer">Illustrative sample data — real scores will be generated from completed sessions.</p>
+            <div className="section-heading"><div><div className="eyebrow">YOUR JOURNEY</div><h2>Recent practice</h2><p>Look back, learn and keep moving forward.</p></div><button className="view-all" onClick={() => setNotice(`Loaded ${sessions.length} saved sessions from PostgreSQL.`)}>View history <ArrowUpRight size={14} /></button></div>
+            <div className="activity-table"><div className="activity-head"><span>SESSION</span><span>MODE</span><span>DATE</span><span>ANSWERS</span></div>{sessions.length ? sessions.map((item) => <div className="activity-row" key={item.id}><div className="activity-title"><div className="activity-icon blue"><Code2 size={16} /></div><strong>{item.role}</strong></div><span>{item.mode}</span><span>{new Date(item.startedAt).toLocaleDateString()}</span><span className="score blue">{item.turnCount}<small> answers</small></span></div>) : <div className="activity-row"><span>No saved sessions yet. Complete a practice session to see it here.</span></div>}</div>
+            <p className="demo-disclaimer">Practice history is loaded from PostgreSQL. Coaching feedback is available inside each session.</p>
           </section>
 
           <footer className="footer"><span>© 2026 InterviewMate AI</span><span>Built to help you become a better communicator.</span><span><ShieldCheck size={13} /> Practice privately</span></footer>

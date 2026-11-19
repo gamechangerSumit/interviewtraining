@@ -1,17 +1,22 @@
 server:
-  port: 8080
+  port: ${SERVER_PORT:8081}
 
 spring:
   application:
     name: interviewtraining-api
   datasource:
-    url: ${DATABASE_URL:jdbc:postgresql://localhost:5432/interviewtraining}
+    url: ${DATABASE_URL:jdbc:postgresql://localhost:5433/interviewtraining}
     username: ${DATABASE_USERNAME:interviewtraining}
     password: ${DATABASE_PASSWORD:change-me}
   jpa:
     hibernate:
       ddl-auto: validate
     open-in-view: false
+
+ai:
+  provider: ${AI_PROVIDER:gemini}
+  api-key: ${AI_API_KEY:}
+  model: ${AI_MODEL:gemini-2.5-flash}
 
 management:
   endpoints:
