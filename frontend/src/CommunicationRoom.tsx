@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { ArrowLeft, Camera, CameraOff, CheckCircle2, LoaderCircle, Mic, MicOff, Send, Sparkles, Video } from "lucide-react";
-import { coachApi } from "./api";
+import { coachApi, sessionApi } from "./api";
 import "./room.css";
 
 type Props = { onExit: () => void };
@@ -32,10 +32,17 @@ export default function CommunicationRoom({ onExit }: Props) {
   const [cameraError, setCameraError] = useState("");
   const [micOn, setMicOn] = useState(false);
   const [speechSupported, setSpeechSupported] = useState(true);
+  const [sessionId, setSessionId] = useState<string | null>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
   const streamRef = useRef<MediaStream | null>(null);
   const speechRef = useRef<SpeechRecognitionLike | null>(null);
   const drill = drills[drillIndex];
+
+  useEffect(() => {
+    sessionApi.create({ role: "Communication Skills", experience: "Practice", mode: "COMMUNICATION" })
+      .then((session) => setSessionId(session.id))
+      .catch(() => setError("Session history is unavailable. You can still complete this drill."));
+  }, []);
 
   useEffect(() => () => {
     streamRef.current?.getTracks().forEach((track) => track.stop());
@@ -112,6 +119,7 @@ export default function CommunicationRoom({ onExit }: Props) {
         answer,
       });
       setFeedback(result.content);
+      if (sessionId) await sessionApi.addTurn(sessionId, { question: drill.prompt, answer, feedback: result.content });
     } catch (e) {
       setError(e instanceof Error ? e.message : "Could not evaluate this response.");
     } finally {
@@ -129,7 +137,7 @@ export default function CommunicationRoom({ onExit }: Props) {
   return (
     <main className="interview-room">
       <header className="room-header">
-        <button className="room-back" onClick={onExit}><ArrowLeft size={17} /> Exit communication gym</button>
+        <button className="room-back" onClick={async () => { if (sessionId) { try { await sessionApi.complete(sessionId); } catch { setError("Could not mark the drill complete."); return; } } onExit(); }}><ArrowLeft size={17} /> Exit communication gym</button>
         <div><span className="live-dot" /> COMMUNICATION PRACTICE</div>
         <span className="room-duration">Daily drills</span>
       </header>
