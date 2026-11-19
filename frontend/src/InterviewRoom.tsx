@@ -1,6 +1,6 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { ArrowLeft, ArrowRight, Bot, CheckCircle2, LoaderCircle, Send, Sparkles } from "lucide-react";
-import { coachApi } from "./api";
+import { coachApi, sessionApi } from "./api";
 import "./room.css";
 
 type Props = {
@@ -18,6 +18,13 @@ export default function InterviewRoom({ role, experience, duration, onExit }: Pr
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [step, setStep] = useState(0);
+  const [sessionId, setSessionId] = useState<string | null>(null);
+
+  useEffect(() => {
+    sessionApi.create({ role, experience, mode: "INTERVIEW" })
+      .then((session) => setSessionId(session.id))
+      .catch(() => setError("Session history is unavailable. You can still practice, but this session may not be saved."));
+  }, [role, experience]);
 
   const generateQuestion = async (previousContext = "") => {
     setLoading(true);
@@ -69,7 +76,7 @@ export default function InterviewRoom({ role, experience, duration, onExit }: Pr
   return (
     <main className="interview-room">
       <header className="room-header">
-        <button className="room-back" onClick={onExit}><ArrowLeft size={17} /> Exit practice</button>
+        <button className="room-back" onClick={async () => { if (sessionId) { try { await sessionApi.complete(sessionId); } catch { setError("Could not mark the session complete."); return; } } onExit(); }}><ArrowLeft size={17} /> Exit practice</button>
         <div><span className="live-dot" /> AI INTERVIEW IN PROGRESS</div>
         <span className="room-duration">{duration}</span>
       </header>
