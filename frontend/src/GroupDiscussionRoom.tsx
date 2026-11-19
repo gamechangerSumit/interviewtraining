@@ -1,6 +1,6 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { ArrowLeft, LoaderCircle, MessageCircle, Send, Users } from "lucide-react";
-import { coachApi } from "./api";
+import { coachApi, sessionApi } from "./api";
 import "./room.css";
 
 type Props = { onExit: () => void };
@@ -11,6 +11,13 @@ export default function GroupDiscussionRoom({ onExit }: Props) {
   const [turns, setTurns] = useState<Array<{ speaker: string; text: string }>>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [sessionId, setSessionId] = useState<string | null>(null);
+
+  useEffect(() => {
+    sessionApi.create({ role: "Group Discussion", experience: "Practice", mode: "GROUP" })
+      .then((session) => setSessionId(session.id))
+      .catch(() => setError("Session history is unavailable. Discussion can continue without saving."));
+  }, []);
 
   const submitPoint = async () => {
     if (!point.trim() || !topic.trim()) return;
@@ -28,6 +35,9 @@ export default function GroupDiscussionRoom({ onExit }: Props) {
         previousContext: turns.map((turn) => `${turn.speaker}: ${turn.text}`).join("\n"),
       });
       setTurns((items) => [...items, { speaker: "AI participant", text: response.content }]);
+      if (sessionId) {
+        await sessionApi.addTurn(sessionId, { question: topic, answer: candidatePoint, feedback: response.content });
+      }
     } catch (e) {
       setError(e instanceof Error ? e.message : "The AI participant could not respond.");
     } finally {
@@ -38,7 +48,7 @@ export default function GroupDiscussionRoom({ onExit }: Props) {
   return (
     <main className="interview-room">
       <header className="room-header">
-        <button className="room-back" onClick={onExit}><ArrowLeft size={17} /> Exit discussion</button>
+        <button className="room-back" onClick={async () => { if (sessionId) { try { await sessionApi.complete(sessionId); } catch { setError("Could not mark the discussion complete."); return; } } onExit(); }}><ArrowLeft size={17} /> Exit discussion</button>
         <div><span className="live-dot" /> GROUP DISCUSSION PRACTICE</div>
         <span className="room-duration">AI simulation</span>
       </header>
