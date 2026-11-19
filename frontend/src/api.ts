@@ -29,6 +29,7 @@ export const coachApi = {
   question: (data: CoachRequest) => request<CoachResponse>("/api/v1/coach/question", { method: "POST", body: JSON.stringify(data) }),
   evaluate: (data: CoachRequest) => request<CoachResponse>("/api/v1/coach/evaluate", { method: "POST", body: JSON.stringify(data) }),
   followUp: (data: CoachRequest) => request<CoachResponse>("/api/v1/coach/follow-up", { method: "POST", body: JSON.stringify(data) }),
+  discussion: (data: CoachRequest) => request<CoachResponse>("/api/v1/coach/discussion", { method: "POST", body: JSON.stringify(data) }),
 };
 
 export type PracticeQuestion = {
