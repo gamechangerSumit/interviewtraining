@@ -44,3 +44,14 @@
 .discussion-turn strong{font-size:10px;color:#b9a5ff}
 .discussion-turn.ai strong{color:#83d8ae}
 .discussion-turn p{font-size:11px;line-height:1.7;color:#d2d3df;margin:7px 0 0;white-space:pre-wrap}
+
+.drill-picker{display:flex;flex-wrap:wrap;gap:8px;margin:18px 0}
+.drill-chip{border:1px solid #303448;background:#11141f;color:#a9adbc;border-radius:20px;padding:8px 11px;font-size:9px}
+.drill-chip.active{border-color:#8468d9;background:#29213f;color:#d1c1ff}
+.capture-controls{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px}
+.capture-toggle{display:inline-flex;align-items:center;gap:7px;border:1px solid #34394d;background:#171b27;color:#bdc1d0;border-radius:7px;padding:8px 10px;font-size:9px}
+.capture-toggle.active{border-color:#886be0;background:#29213f;color:#d0c0ff}
+.camera-preview{position:relative;max-width:340px;margin:0 0 16px;background:#05070b;border:1px solid #34394d;border-radius:9px;overflow:hidden}
+.camera-preview video{display:block;width:100%;max-height:230px;object-fit:cover}
+.camera-preview span{display:flex;align-items:center;gap:6px;padding:7px 9px;color:#8fe0b2;font-size:9px}
+.capture-message{font-size:10px;color:#e6bb82;margin:8px 0}
