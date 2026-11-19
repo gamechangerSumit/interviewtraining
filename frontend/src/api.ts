@@ -47,3 +47,23 @@ export const questionApi = {
   create: (data: Omit<PracticeQuestion, "id" | "createdAt">) =>
     request<PracticeQuestion>("/api/v1/questions", { method: "POST", body: JSON.stringify(data) }),
 };
+
+export type PracticeSession = {
+  id: string;
+  role: string;
+  experience: string;
+  mode: string;
+  status: string;
+  startedAt: string;
+  endedAt?: string;
+  turnCount: number;
+};
+
+export const sessionApi = {
+  list: () => request<PracticeSession[]>("/api/v1/sessions"),
+  create: (data: { role: string; experience: string; mode: string }) =>
+    request<PracticeSession>("/api/v1/sessions", { method: "POST", body: JSON.stringify(data) }),
+  addTurn: (id: string, data: { question: string; answer: string; feedback?: string }) =>
+    request<{ id: number }>(`/api/v1/sessions/${id}/turns`, { method: "POST", body: JSON.stringify(data) }),
+  complete: (id: string) => request<PracticeSession>(`/api/v1/sessions/${id}/complete`, { method: "POST" }),
+};
