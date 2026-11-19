@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import InterviewRoom from "./InterviewRoom";
 import GroupDiscussionRoom from "./GroupDiscussionRoom";
+import CommunicationRoom from "./CommunicationRoom";
 import { questionApi } from "./api";
 import {
   Activity, ArrowUpRight, AudioLines, BookOpen, BrainCircuit, CalendarDays,
@@ -33,6 +34,7 @@ function App() {
   const [activeMode, setActiveMode] = useState<Mode>("interview");
   const [showRoom, setShowRoom] = useState(false);
   const [showGroupRoom, setShowGroupRoom] = useState(false);
+  const [showCommunicationRoom, setShowCommunicationRoom] = useState(false);
   const [role, setRole] = useState("DevOps Engineer");
   const [level, setLevel] = useState("Fresher");
   const [duration, setDuration] = useState("20 minutes");
@@ -54,6 +56,10 @@ function App() {
   const startPractice = () => {
     if (activeMode === "group") {
       setShowGroupRoom(true);
+      return;
+    }
+    if (activeMode === "communication") {
+      setShowCommunicationRoom(true);
       return;
     }
     setShowRoom(true);
@@ -79,6 +85,10 @@ function App() {
       setNotice(error instanceof Error ? error.message : "Could not save the question. Check that the backend is running.");
     }
   };
+
+  if (showCommunicationRoom) {
+    return <CommunicationRoom onExit={() => setShowCommunicationRoom(false)} />;
+  }
 
   if (showGroupRoom) {
     return <GroupDiscussionRoom onExit={() => setShowGroupRoom(false)} />;
